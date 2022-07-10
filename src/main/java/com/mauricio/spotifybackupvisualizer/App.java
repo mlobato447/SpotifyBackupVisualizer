@@ -11,9 +11,18 @@ public class App {
         Scanner scan = new Scanner(System.in);
         String comand = "";
         while (!exitFlag) {
-            System.out.printf(">>Current path:" + path + "\n>>");
+            System.out.printf("Caminho atual:" + path + "\n>>");
             comand = scan.nextLine();
             switch (comand) {
+                case "help":
+                    System.out.println("'path' - seta o caminho para arquivo de backup(em formato zip).");
+                    System.out.println("'library' - lista todas as músicas curtidas.");
+                    System.out.println("'nonplaylisted' - lista músicas curtidas que não estão en nenhuma playlist.");
+                    System.out.println("'twiceplaylisted' - lista músicas curtidas presentes em mais de uma playlist.");
+                    System.out.println("'playlists' - lista todas as playlists.");
+                    System.out.println("'exit' - finaliza o programa.");
+                    break;
+
                 case "path":
                     System.out.printf(">>set path to: ");
                     path = scan.nextLine();
@@ -69,6 +78,50 @@ public class App {
                         System.out.println("Ocorreu um erro ao tentar acessar o arquivo.");
                     }
                     break;
+                case "playlists":
+                    if (path.length() == 0) {
+                        System.out.println("Caminho de arquivo não especificado.");
+                        break;
+                    }
+                    try {
+
+                        List<String> playlists = PlaylistList.getList(path);
+                        if (playlists.isEmpty()) {
+                            System.out.println("Sem playlists.");
+                        } else {
+                            for (String str : playlists) {
+                                System.out.println(str);
+                            }
+                        }
+                    } catch (IOException e) {
+                        System.out.println("Ocorreu um erro ao tentar acessar o arquivo.");
+                        break;
+                    }
+                    boolean getPlaylistsFlag = true;
+                    while (getPlaylistsFlag) {
+                        System.out.printf(">>Escolha uma playlist para exibir(deixe em branco para sair): ");
+                        String playlistName = scan.nextLine();
+                        if (playlistName.isBlank()) {
+                            getPlaylistsFlag = false;
+                        } else {
+                            try {
+                                Playlists playlistMusics = PlaylistList.getMusics(path, playlistName);
+                                if (playlistMusics.getItems() == null) {
+                                    System.out.println("Playlist não encontrada.");
+                                } else {
+                                    for (Items str : playlistMusics.getItems()) {
+                                        System.out.println(
+                                                str.getTrack().getTrackName() + " - " + str.getTrack().getArtistName());
+                                    }
+                                }
+
+                            } catch (IOException e) {
+                                System.out.println("Ocorreu um erro ao tentar acessar o arquivo.");
+                            }
+                        }
+                    }
+                    break;
+
                 case "exit":
                     exitFlag = true;
                     break;
